@@ -312,11 +312,11 @@ async function scrapeWithPuppeteer(url: string) {
     });
 
     // Navigate to the URL and wait for network activity to finish
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 120000 });
+    await page.goto(url, { waitUntil: "networkidle0", timeout: 120000 });
 
     // Wait for a specific selector to ensure the content is loaded
     try {
-      await page.waitForSelector("main, article, body", { timeout: 30000 });
+      await page.waitForSelector("main, article, body", { timeout: 60000 });
     } catch {
       logger.warn(`Content may not have fully loaded for URL: ${url}`);
     }
