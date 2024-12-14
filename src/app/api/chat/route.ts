@@ -76,67 +76,34 @@ export async function POST(req: Request) {
 
     const userQuery = message.replace(url ? url[0] : "", "").trim();
 
-    // const userPrompt = url
-    //   ? `
-    //     The user has provided a URL to scrape: "${url[0]}".
-    //     Scrape the content from the URL and then answer their question based on the content.
-
-    //     User's question: "${userQuery}"
-
-    //     Based on the scraped content:
-    //     <content>
-    //       ${scrapedContent || "No content could be scraped from the provided URL."}
-    //     </content>
-
-    //     Respond in a structured format with:
-    //     1. **Scraped URL**: Mention the URL that was scraped.
-    //     2. **Scraping Details**: Indicate whether scraping was successful or not, and provide a summary of the scraped content.
-    //     3. **Answer**: Provide a response to the user's question in a structured format with:
-    //        - Headings for major themes or sections.
-    //        - Bullet points or numbered lists for detailed explanations under each heading.
-    //        - Clear and concise language for readability.
-    //   `
-    //   : `
-    //     The user has asked a question: "${userQuery}".
-    //     Answer the question based on any relevant knowledge or context available.
-
-    //     Respond in a structured format with:
-    //     1. **Question Asked**: Repeat the user's question.
-    //     2. **Answer**: Provide a response in a structured format with:
-    //        - Headings for major themes or sections.
-    //        - Bullet points or numbered lists for detailed explanations under each heading.
-    //        - Clear and concise language for readability.
-    //   `;
     const userPrompt = url
       ? `
-    The user has provided a URL to scrape: "${url[0]}".
-    Scrape the content from the URL and answer their question based on the content.
+    The user provided a URL: "${url[0]}".
+    Scrape the content from the URL and answer the user's question.
 
     User's question: "${userQuery}"
 
-    Based on the scraped content:
+    If scraping was successful, use the following content:
     <content>
       ${scrapedContent || "No content could be scraped from the provided URL."}
     </content>
 
-    Respond in a structured format with:
-    1. Scraped URL: Mention the URL that was scraped.
-    2. Scraping Details: Indicate whether scraping was successful or not, and provide a summary of the scraped content.
-    3. Answer: Provide a response to the user's question in a structured format with:
-       - Headings for major themes or sections.
-       - Bullet points or numbered lists for detailed explanations under each heading.
-       - Clear and concise language for readability.
+    Respond in this format:
+    - Scraped URL: Mention the URL that was scraped.
+    - Scraping Details: Briefly describe whether scraping succeeded or failed and summarize the content if available.
+    - Answer: Provide a clear and concise response to the user's question, structured with:
+      - Headings for key topics or sections.
+      - Bullet points or paragraphs for details.
   `
       : `
-    The user has asked a question: "${userQuery}".
-    Answer the question based on any relevant knowledge or context available.
+    The user asked a question: "${userQuery}".
+    Provide a detailed answer based on available knowledge.
 
-    Respond in a structured format with:
-    1. Question Asked: Repeat the user's question.
-    2. Answer: Provide a response in a structured format with:
-       - Headings for major themes or sections.
-       - Bullet points or numbered lists for detailed explanations under each heading.
-       - Clear and concise language for readability.
+    Respond in this format:
+    - Question Asked: Restate the user's question.
+    - Answer: Deliver a structured and concise response with:
+      - Headings for key topics or sections.
+      - Bullet points or paragraphs for details.
   `;
 
     const llmMessages = [
