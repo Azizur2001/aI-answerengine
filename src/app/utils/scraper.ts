@@ -312,7 +312,7 @@ async function scrapeWithPuppeteer(url: string) {
     });
 
     // Navigate to the URL and wait for network activity to finish
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 120000 });
 
     // Wait for a specific selector to ensure the content is loaded
     try {
