@@ -288,7 +288,7 @@ function cleanText(text: string): string {
 
 async function scrapeWithPuppeteer(url: string) {
   const browser = await puppeteer.launch({
-    headless: true, // Ensure Puppeteer runs headless in deployment
+    headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -317,14 +317,14 @@ async function scrapeWithPuppeteer(url: string) {
     // Wait for a specific selector to ensure the content is loaded
     try {
       await page.waitForSelector("main, article, body", { timeout: 30000 });
-    } catch (error) {
+    } catch {
       logger.warn(`Content may not have fully loaded for URL: ${url}`);
     }
 
     const content = await page.content();
     return content;
-  } catch (error) {
-    logger.error(`Error scraping ${url}:`, error);
+  } catch (err) {
+    logger.error(`Error scraping ${url}:`, err);
     throw new Error("Scraping failed.");
   } finally {
     await browser.close();
@@ -416,8 +416,8 @@ export async function scrapeUrl(url: string) {
 
     await cacheContent(url, finalResponse);
     return finalResponse;
-  } catch (error) {
-    logger.error(`Error scraping ${url}:`, error);
+  } catch (err) {
+    logger.error(`Error scraping ${url}:`, err);
     return {
       url,
       title: "",
@@ -501,8 +501,8 @@ async function getCachedContent(url: string): Promise<ScrapedContent | null> {
     logger.warn(`Invalid cached content format for URL: ${url}`);
     await redis.del(cacheKey);
     return null;
-  } catch (error) {
-    logger.error(`Cache retrieval error: ${error}`);
+  } catch (err) {
+    logger.error(`Cache retrieval error: ${err}`);
     return null;
   }
 }
@@ -529,7 +529,7 @@ async function cacheContent(
     logger.info(
       `Successfully cached content for: ${url} (${serialized.length} bytes), TTL: ${CACHE_TTL}`
     );
-  } catch (error) {
-    logger.error(`Cache storage error: ${error}`);
+  } catch (err) {
+    logger.error(`Cache storage error: ${err}`);
   }
 }
