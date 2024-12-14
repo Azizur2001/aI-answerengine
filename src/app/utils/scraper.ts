@@ -61,7 +61,7 @@ export async function scrapeUrl(url: string) {
     }
     logger.info(`Cache miss – proceeding with fresh scrape for: ${url}`);
 
-    const rawHtml = await scrapeWithPuppeteer(url); // Replaces axios.get
+    const rawHtml = await scrapeWithPuppeteer(url);
     const $ = cheerio.load(rawHtml);
 
     // Remove script tags, style tags, and comments
@@ -163,19 +163,38 @@ export interface ScrapedContent {
   cachedAt?: number;
 }
 
-function isValidScrapedContent(data: any): data is ScrapedContent {
-  return (
+// function isValidScrapedContent(data: any): data is ScrapedContent {
+//   return (
+//     typeof data === "object" &&
+//     data !== null &&
+//     typeof data.url === "string" &&
+//     typeof data.title === "string" &&
+//     typeof data.headings === "object" &&
+//     typeof data.headings.h1 === "string" &&
+//     typeof data.headings.h2 === "string" &&
+//     typeof data.metaDescription === "string" &&
+//     typeof data.content === "string" &&
+//     (data.error === null || typeof data.error === "string")
+//   );
+// }
+
+function isValidScrapedContent(data: unknown): data is ScrapedContent {
+  if (
     typeof data === "object" &&
     data !== null &&
-    typeof data.url === "string" &&
-    typeof data.title === "string" &&
-    typeof data.headings === "object" &&
-    typeof data.headings.h1 === "string" &&
-    typeof data.headings.h2 === "string" &&
-    typeof data.metaDescription === "string" &&
-    typeof data.content === "string" &&
-    (data.error === null || typeof data.error === "string")
-  );
+    typeof (data as ScrapedContent).url === "string" &&
+    typeof (data as ScrapedContent).title === "string" &&
+    typeof (data as ScrapedContent).headings === "object" &&
+    typeof (data as ScrapedContent).headings.h1 === "string" &&
+    typeof (data as ScrapedContent).headings.h2 === "string" &&
+    typeof (data as ScrapedContent).metaDescription === "string" &&
+    typeof (data as ScrapedContent).content === "string" &&
+    ((data as ScrapedContent).error === null ||
+      typeof (data as ScrapedContent).error === "string")
+  ) {
+    return true;
+  }
+  return false;
 }
 
 // Function to get cache key for a URL with sanitization
@@ -198,7 +217,7 @@ async function getCachedContent(url: string): Promise<ScrapedContent | null> {
 
     logger.info(`Cache hit – Found cached content for: ${url}`);
 
-    let parsed: any;
+    let parsed: unknown;
     if (typeof cached === "string") {
       try {
         parsed = JSON.parse(cached);

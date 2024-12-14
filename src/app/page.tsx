@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 type Message = {
@@ -13,13 +13,13 @@ type SavedChat = {
 };
 
 export default function Home() {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hello! How can I help you today?" },
   ]);
   const [savedChats, setSavedChats] = useState<SavedChat[]>([]);
-  const [activeChatId, setActiveChatId] = useState<number | null>(null); // Track active chat
-  const [isLoading, setIsLoading] = useState(false);
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Load saved chats from local storage on initial render
   useEffect(() => {
@@ -31,14 +31,13 @@ export default function Home() {
     localStorage.setItem("chats", JSON.stringify(chats));
   };
 
-  const formatStructuredResponse = response => {
+  const formatStructuredResponse = (response: string) => {
     try {
       // Remove all instances of `#` and `###`
       const cleanedResponse = response.replace(/#+\s*/g, "");
-
       const sections = cleanedResponse.split("\n\n"); // Split sections by double line breaks
 
-      const mainContent = [];
+      const mainContent: string[] = [];
       let referenceLink = "";
 
       // Separate main content and reference link
@@ -54,14 +53,11 @@ export default function Home() {
 
       return (
         <div className="space-y-4">
-          {/* Main Content */}
           {mainContent.map((paragraph, index) => (
             <p key={index} className="text-gray-300">
               {paragraph.trim()}
             </p>
           ))}
-
-          {/* Referenced Sources */}
           {referenceLink && (
             <div className="mt-4">
               <h3 className="text-lg font-bold text-gray-100">
@@ -81,15 +77,15 @@ export default function Home() {
       );
     } catch (error) {
       console.error("Error formatting structured response:", error);
-      return <p className="text-gray-300">{response}</p>; // Fallback for unstructured responses
+      return <p className="text-gray-300">{response}</p>;
     }
   };
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    const userMessage = { role: "user" as const, content: message };
-    const updatedMessages = [...messages, userMessage];
+    const userMessage: Message = { role: "user", content: message };
+    const updatedMessages: Message[] = [...messages, userMessage];
     setMessages(updatedMessages);
     setMessage("");
     setIsLoading(true);
@@ -102,13 +98,14 @@ export default function Home() {
       });
 
       const data = await response.json();
-      const assistantMessage = { role: "assistant", content: data.message };
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: data.message,
+      };
 
-      // Add assistant response to the chat
-      const finalMessages = [...updatedMessages, assistantMessage];
+      const finalMessages: Message[] = [...updatedMessages, assistantMessage];
       setMessages(finalMessages);
 
-      // Update savedChats if working on an existing chat
       if (activeChatId !== null) {
         const updatedChats = savedChats.map(chat =>
           chat.id === activeChatId ? { ...chat, messages: finalMessages } : chat
@@ -116,9 +113,8 @@ export default function Home() {
         setSavedChats(updatedChats);
         saveChatToLocalStorage(updatedChats);
       } else {
-        // If no active chat, create a new chat and save it
-        const newChat = { id: Date.now(), messages: finalMessages };
-        const updatedChats = [newChat, ...savedChats];
+        const newChat: SavedChat = { id: Date.now(), messages: finalMessages };
+        const updatedChats: SavedChat[] = [newChat, ...savedChats];
         setSavedChats(updatedChats);
         saveChatToLocalStorage(updatedChats);
         setActiveChatId(newChat.id);
@@ -132,15 +128,15 @@ export default function Home() {
 
   const handleNewChat = () => {
     if (messages.length > 1 && activeChatId === null) {
-      const newChat = { id: Date.now(), messages: [...messages] };
-      const updatedChats = [newChat, ...savedChats];
+      const newChat: SavedChat = { id: Date.now(), messages: [...messages] };
+      const updatedChats: SavedChat[] = [newChat, ...savedChats];
       setSavedChats(updatedChats);
       saveChatToLocalStorage(updatedChats);
     }
     setMessages([
       { role: "assistant", content: "Hello! How can I help you today?" },
     ]);
-    setActiveChatId(null); // Reset active chat
+    setActiveChatId(null);
   };
 
   const handleDeleteChat = (chatId: number) => {
@@ -148,7 +144,6 @@ export default function Home() {
     setSavedChats(updatedChats);
     saveChatToLocalStorage(updatedChats);
 
-    // If the active chat is deleted, reset to a new chat
     if (activeChatId === chatId) {
       setMessages([
         { role: "assistant", content: "Hello! How can I help you today?" },
@@ -158,8 +153,8 @@ export default function Home() {
   };
 
   const handleLoadChat = (chat: SavedChat) => {
-    setActiveChatId(chat.id); // Set the active chat ID
-    setMessages([...chat.messages]); // Load the selected chat's messages
+    setActiveChatId(chat.id);
+    setMessages([...chat.messages]);
   };
 
   return (
@@ -167,11 +162,12 @@ export default function Home() {
       {/* Header */}
       <div className="w-full bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
         <div className="max-w-3xl mx-auto flex items-center space-x-3">
-          {/* Logo */}
-          <img
-            src="/AI.png" // Adjust the path if the logo is located elsewhere
+          <Image
+            src="/AI.png"
             alt="Logo"
-            className="w-15 h-12" // Adjust width and height as needed
+            width={60} // Adjust width as needed
+            height={50} // Adjust height as needed
+            priority // To ensure it loads quickly
           />
           {/* Title */}
           <h1 className="text-xl font-semibold text-white">AnswerAI</h1>
